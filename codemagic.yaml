@@ -7,7 +7,7 @@ workflows:
       groups:
         - yandex
     scripts:
-      - name: Clean and Generate Android Only
+      - name: Clean and Generate Platforms
         script: |
           rm -rf android ios .dart_tool
           flutter create . --platforms=android,ios --force
@@ -15,5 +15,9 @@ workflows:
       - name: Build Android App (APK Debug)
         script: |
           flutter build apk --debug --dart-define=YANDEX_API_KEY=$YANDEX_API_KEY --dart-define=YANDEX_FOLDER_ID=b1gu1l2c8thgnac4nusp
+      - name: Build iOS App (IPA Debug)
+        script: |
+          flutter build ios --debug --no-codesign --dart-define=YANDEX_API_KEY=$YANDEX_API_KEY --dart-define=YANDEX_FOLDER_ID=b1gu1l2c8thgnac4nusp
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
+      - build/ios/iphoneos/*.app
