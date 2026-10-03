@@ -7,12 +7,13 @@ workflows:
       groups:
         - yandex
     scripts:
-      - name: Generate Platforms and Fetch Dependencies
-        script: | 
-          flutter create . --platforms=android
+      - name: Force Clean and Generate New Platform
+        script: |
+          rm -rf android ios .dart_tool
+          flutter create . --platforms=android --force
           flutter pub get
       - name: Build Android App (APK Debug)
-        script: | 
+        script: |
           flutter build apk --debug --dart-define=YANDEX_API_KEY=$YANDEX_API_KEY --dart-define=YANDEX_FOLDER_ID=b1gu1l2c8thgnac4nusp
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
