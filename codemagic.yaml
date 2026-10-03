@@ -1,13 +1,13 @@
 workflows:
   default-workflow:
     name: Default Workflow
-    max_build_duration: 60
+    max_build_duration: 30
     instance_type: mac_mini_m2
     environment:
       groups:
         - yandex
     scripts:
-      - name: Force Clean and Generate New Platform
+      - name: Clean and Generate Android Only
         script: |
           rm -rf android ios .dart_tool
           flutter create . --platforms=android --force
