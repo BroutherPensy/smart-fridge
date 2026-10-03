@@ -10,7 +10,7 @@ workflows:
       - name: Clean and Generate Android Only
         script: |
           rm -rf android ios .dart_tool
-          flutter create . --platforms=android --force
+          flutter create . --platforms=android,ios --force
           flutter pub get
       - name: Build Android App (APK Debug)
         script: |
