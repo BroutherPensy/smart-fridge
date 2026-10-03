@@ -186,30 +186,58 @@ class _RecipesTabState extends State<RecipesTab> {
     }
 
     try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Api-Key $apiKey',
+       try {
+    var dio = Dio();
+    dio.options.headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Api-Key $apiKey',
+    };
+
+    final response = await dio.post(
+      url,
+      data: {
+        "modelUri": "gpt://$folderId/yandexgpt-lite/latest",
+        "completionOptions": {
+          "stream": false,
+          "temperature": 0.5,
+          "maxTokens": 1000
         },
-        body: jsonEncode({
-          "modelUri": "gpt://$folderId/yandexgpt-lite/latest",
-          "completionOptions": {
-            "stream": false,
-            "temperature": 0.5,
-            "maxTokens": 1000
+        "messages": [
+          {
+            "role": "system",
+            "content": "Ты ИИ-ассистент умного холодильника в стиле сайта Food.ru. Ты должен придумать 2 реальных рецепта из переданных продуктов. Ответь строго в формате готового JSON массива объектов, без разметки markdown (не добавляй ```json) и без лишнего текста вокруг. Формат ответа: [{\"title\": \"Название блюда\", \"duration\": \"Время\", \"instructions\": \"Инструкция\"}]"
           },
-          "messages": [
-            {
-              "role": "system",
-              "content": "Ты ИИ-ассистент умного холодильника в стиле сайта Food.ru. Ты должен придумать 2 реальных рецепта из переданных продуктов. Ответь строго в формате готового JSON массива объектов, без разметки markdown (не добавляй ```json) и без лишнего текста вокруг. Формат ответа: [{\"title\": \"Название блюда\", \"duration\": \"Время\", \"instructions\": \"Инструкция\"}]"
-            },
-            {
-              "role": "user",
-              "content": "У меня в холодильнике есть: \$productsList. Придумай рецепты."
-            }
-          ]
-        }),
+          {
+            "role": "user",
+            "content": "У меня в холодильнике есть: \$productsList. Придумай рецепты."
+          }
+        ]
+      },
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> decoded = response.data;
+      String aiTextResponse = decoded['result']['alternatives']['message']['text'];
+
+      aiTextResponse = aiTextResponse.trim();
+      if (aiTextResponse.startsWith('```')) {
+        aiTextResponse = aiTextResponse.replaceAll('```json', '').replaceAll('```', '').trim();
+      }
+
+      List<dynamic> jsonRecipes = jsonDecode(aiTextResponse);
+
+      setState(() {
+        aiRecipes = jsonRecipes.map((r) => AiRecipe(
+          title: r['title'] ?? 'Рецепт без названия',
+          duration: r['duration'] ?? 'Время не указано',
+          instructions: r['instructions'] ?? 'Инструкция отсутствует'
+        )).toList();
+      });
+    }
+  } catch (e) {
+    print("Ошибка мобильной сети: $e");
+  }
+
       );
 
       if (response.statusCode == 200) {
