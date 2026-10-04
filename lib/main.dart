@@ -177,7 +177,7 @@ class _RecipesTabState extends State<RecipesTab> {
 
     const String apiKey = String.fromEnvironment('YANDEX_API_KEY');
     const String folderId = String.fromEnvironment('YANDEX_FOLDER_ID');
-    const String url = "llm.api.cloud.yandex.net";
+    const String url = "https://llm.api.cloud.yandex.net";
 
     if (apiKey.isEmpty || folderId.isEmpty) {
       print("Ошибка: Секретные ключи YANDEX_API_KEY или YANDEX_FOLDER_ID не настроены!");
@@ -185,72 +185,46 @@ class _RecipesTabState extends State<RecipesTab> {
       return;
     }
 
-    try {
        try {
-    var dio = Dio();
-    dio.options.headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Api-Key $apiKey',
-    };
+      var dio = Dio();
+      dio.options.headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Api-Key $apiKey',
+      };
 
-    final response = await dio.post(
-      url,
-      data: {
-        "modelUri": "gpt://$folderId/yandexgpt-lite/latest",
-        "completionOptions": {
-          "stream": false,
-          "temperature": 0.5,
-          "maxTokens": 1000
-        },
-        "messages": [
-          {
-            "role": "system",
-            "content": "Ты ИИ-ассистент умного холодильника в стиле сайта Food.ru. Ты должен придумать 2 реальных рецепта из переданных продуктов. Ответь строго в формате готового JSON массива объектов, без разметки markdown (не добавляй ```json) и без лишнего текста вокруг. Формат ответа: [{\"title\": \"Название блюда\", \"duration\": \"Время\", \"instructions\": \"Инструкция\"}]"
+      final response = await dio.post(
+        url,
+        data: {
+          "modelUri": "gpt://$folderId/yandexgpt-lite/latest",
+          "completionOptions": {
+            "stream": false,
+            "temperature": 0.5,
+            "maxTokens": 1000
           },
-          {
-            "role": "user",
-            "content": "У меня в холодильнике есть: \$productsList. Придумай рецепты."
-          }
-        ]
-      },
-    );
-
-    if (response.statusCode == 200) {
-      Map<String, dynamic> decoded = response.data;
-      String aiTextResponse = decoded['result']['alternatives']['message']['text'];
-
-      aiTextResponse = aiTextResponse.trim();
-      if (aiTextResponse.startsWith('```')) {
-        aiTextResponse = aiTextResponse.replaceAll('```json', '').replaceAll('```', '').trim();
-      }
-
-      List<dynamic> jsonRecipes = jsonDecode(aiTextResponse);
-
-      setState(() {
-        aiRecipes = jsonRecipes.map((r) => AiRecipe(
-          title: r['title'] ?? 'Рецепт без названия',
-          duration: r['duration'] ?? 'Время не указано',
-          instructions: r['instructions'] ?? 'Инструкция отсутствует'
-        )).toList();
-      });
-    }
-  } catch (e) {
-    print("Ошибка мобильной сети: $e");
-  }
-
+          "messages": [
+            {
+              "role": "system",
+              "content": "Ты ИИ-ассистент умного холодильника в стиле сайта Food.ru. Ты должен придумать 2 реальных рецепта из переданных продуктов. Ответь строго в формате готового JSON массива объектов, без разметки markdown (не добавляй ```json) и без лишнего текста вокруг. Формат ответа: [{\"title\": \"Название блюда\", \"duration\": \"Время\", \"instructions\": \"Инструкция\"}]"
+            },
+            {
+              "role": "user",
+              "content": "У меня в холодильнике есть: \$productsList. Придумай рецепты."
+            }
+          ]
+        },
       );
 
       if (response.statusCode == 200) {
-        final decoded = jsonDecode(response.body);
+        Map<String, dynamic> decoded = response.data;
         String aiTextResponse = decoded['result']['alternatives']['message']['text'];
-        
+
         aiTextResponse = aiTextResponse.trim();
         if (aiTextResponse.startsWith('```')) {
           aiTextResponse = aiTextResponse.replaceAll('```json', '').replaceAll('```', '').trim();
         }
 
         List<dynamic> jsonRecipes = jsonDecode(aiTextResponse);
-        
+
         setState(() {
           aiRecipes = jsonRecipes.map((r) => AiRecipe(
             title: r['title'] ?? 'Рецепт без названия',
@@ -258,6 +232,7 @@ class _RecipesTabState extends State<RecipesTab> {
             instructions: r['instructions'] ?? 'Инструкция отсутствует'
           )).toList();
         });
+  
       } else {
         print("Ошибка сервера Яндекса: ${response.statusCode}. Тело: ${response.body}");
       }
