@@ -232,7 +232,7 @@ class _RecipesTabState extends State<RecipesTab> {
             instructions: r['instructions'] ?? 'Инструкция отсутствует'
           )).toList();
         });
-
+      }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
