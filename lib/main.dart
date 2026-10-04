@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 void main() => runApp(const MaterialApp(home: SmartFridgeApp()));
@@ -185,16 +185,14 @@ class _RecipesTabState extends State<RecipesTab> {
       return;
     }
 
-       try {
-      var dio = Dio();
-      dio.options.headers = {
-        'Content-Type': 'application/json',
-        'Authorization': 'Api-Key $apiKey',
-      };
-
-      final response = await dio.post(
-        url,
-        data: {
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Api-Key $apiKey',
+        },
+        body: jsonEncode({
           "modelUri": "gpt://$folderId/yandexgpt-lite/latest",
           "completionOptions": {
             "stream": false,
@@ -211,20 +209,20 @@ class _RecipesTabState extends State<RecipesTab> {
               "content": "У меня в холодильнике есть: \$productsList. Придумай рецепты."
             }
           ]
-        },
+        }),
       );
 
       if (response.statusCode == 200) {
-        Map<String, dynamic> decoded = response.data;
+        final decoded = jsonDecode(response.body);
         String aiTextResponse = decoded['result']['alternatives']['message']['text'];
-
+        
         aiTextResponse = aiTextResponse.trim();
         if (aiTextResponse.startsWith('```')) {
           aiTextResponse = aiTextResponse.replaceAll('```json', '').replaceAll('```', '').trim();
         }
 
         List<dynamic> jsonRecipes = jsonDecode(aiTextResponse);
-
+        
         setState(() {
           aiRecipes = jsonRecipes.map((r) => AiRecipe(
             title: r['title'] ?? 'Рецепт без названия',
@@ -232,15 +230,17 @@ class _RecipesTabState extends State<RecipesTab> {
             instructions: r['instructions'] ?? 'Инструкция отсутствует'
           )).toList();
         });
+      } else {
+        print("Ошибка сервера Яндекса: ${response.statusCode}. Тело: ${response.body}");
       }
-             });
-  } catch (e) {
-    print("Ошибка сети или ИИ: $e");
+    } catch (e) {
+      print("Ошибка парсинга или сети: $e");
+    }
+
+    setState(() {
+      isLoading = false;
+    });
   }
-  setState(() {
-    isLoading = false;
-  });
-}
 
   @override
   Widget build(BuildContext context) {
