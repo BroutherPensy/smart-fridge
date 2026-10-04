@@ -9,11 +9,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # HTTP-клиент для отправки запросов к API YandexGPT
   dio: ^5.4.0
+  
+  # Пакет для удобного хранения API-ключей и заголовков YandexGPT в .env файлах
+  flutter_dotenv: ^5.1.0
+  
+  # Безопасное хранилище (в веб-версии автоматически использует LocalStorage/IndexedDB)
+  flutter_secure_storage: ^9.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  
+  # Линтер для поддержки чистоты кода по стандартам Flutter
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true
+
+  # Включение поддержки локальных ассетов (для .env файла с ключами Яндекса)
+  assets:
+    - .env
