@@ -233,11 +233,6 @@ class _RecipesTabState extends State<RecipesTab> {
           )).toList();
         });
 
-    setState(() {
-      isLoading = false;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
