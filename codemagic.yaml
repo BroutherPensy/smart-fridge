@@ -1,30 +1,25 @@
 workflows:
-  android-ios-workflow:
-    name: Mobile Build (APK & iOS)
+  web-build-workflow:
+    name: Web Build
     max_build_duration: 60
     instance_type: mac_mini_m2
     environment:
       flutter: stable
-      xcode: latest
-      cocoapods: default
     triggering:
       events:
         - push
       branch_patterns:
         - pattern: main
     scripts:
-      - name: Recreate missing native platforms
+      - name: Recreate missing web platform
         script: |
-          rm -rf android ios
-          flutter create --platforms=android,ios .
-      - name: Set up local.properties for Android
-        script: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          rm -rf web
+          flutter create --platforms=web .
       - name: Get Flutter packages
-        script: flutter packages pub get
-      - name: Build Android APK
-        script: flutter build apk --release
-      - name: Build iOS App
-        script: flutter build ios --release --no-codesign
+        script: |
+          flutter packages pub get
+      - name: Build Flutter Web
+        script: |
+          flutter build web --release
     artifacts:
-      - build/app/outputs/flutter-apk/*-release.apk
-      - build/ios/iphoneos/*.app
+      - build/web/**
