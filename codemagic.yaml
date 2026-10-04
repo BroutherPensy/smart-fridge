@@ -14,12 +14,17 @@ workflows:
         - pattern: main
     scripts:
       - name: Recreate missing native platforms
-        script: flutter create --platforms=android,ios .
+        script: |
+          rm -rf android ios
+          flutter create --platforms=android,ios .
       - name: Set up local.properties for Android
         script: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
       - name: Get Flutter packages
         script: flutter packages pub get
       - name: Build Android APK
         script: flutter build apk --release
+      - name: Build iOS App
+        script: flutter build ios --release --no-codesign
     artifacts:
       - build/app/outputs/flutter-apk/*-release.apk
+      - build/ios/iphoneos/*.app
