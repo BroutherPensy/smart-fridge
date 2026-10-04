@@ -214,7 +214,7 @@ class _RecipesTabState extends State<RecipesTab> {
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
-        String aiTextResponse = decoded['result']['alternatives']['message']['text'];
+        String aiTextResponse = decoded['result']['alternatives'][0]['message']['text'];
         
         aiTextResponse = aiTextResponse.trim();
         if (aiTextResponse.startsWith('```')) {
