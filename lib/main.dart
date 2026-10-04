@@ -177,7 +177,7 @@ class _RecipesTabState extends State<RecipesTab> {
 
     const String apiKey = String.fromEnvironment('YANDEX_API_KEY');
     const String folderId = String.fromEnvironment('YANDEX_FOLDER_ID');
-    const String url = "https://llm.api.cloud.yandex.net";
+    const String url = "https://yandex.net";
 
     if (apiKey.isEmpty || folderId.isEmpty) {
       print("Ошибка: Секретные ключи YANDEX_API_KEY или YANDEX_FOLDER_ID не настроены!");
@@ -233,6 +233,15 @@ class _RecipesTabState extends State<RecipesTab> {
           )).toList();
         });
       }
+             });
+  } catch (e) {
+    print("Ошибка сети или ИИ: $e");
+  }
+  setState(() {
+    isLoading = false;
+  });
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
