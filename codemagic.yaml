@@ -2,7 +2,7 @@ workflows:
   android-ios-workflow:
     name: Mobile Build (APK & iOS)
     max_build_duration: 60
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     environment:
       flutter: stable
       xcode: latest
@@ -13,14 +13,13 @@ workflows:
       branch_patterns:
         - pattern: main
     scripts:
+      - name: Recreate missing native platforms
+        script: flutter create --platforms=android,ios .
       - name: Set up local.properties for Android
         script: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
       - name: Get Flutter packages
         script: flutter packages pub get
       - name: Build Android APK
         script: flutter build apk --release
-      - name: Build iOS
-        script: flutter build ios --release --no-codesign
     artifacts:
       - build/app/outputs/flutter-apk/*-release.apk
-      - build/ios/iphoneos/*.app
