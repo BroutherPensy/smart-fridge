@@ -232,13 +232,6 @@ class _RecipesTabState extends State<RecipesTab> {
             instructions: r['instructions'] ?? 'Инструкция отсутствует'
           )).toList();
         });
-  
-      } else {
-        print("Ошибка сервера Яндекса: ${response.statusCode}. Тело: ${response.body}");
-      }
-    } catch (e) {
-      print("Ошибка парсинга или сети: $e");
-    }
 
     setState(() {
       isLoading = false;
